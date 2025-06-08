@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import torch
 import torchvision
 import torchvision.transforms as transforms
+from PIL import Image
+import os
 
 # Load MNIST dataset using PyTorch
 transform = transforms.Compose([transforms.ToTensor()])
@@ -26,6 +28,29 @@ print(f"Image shape: {random_images[0].shape}")
 print(f"Labels: {random_labels}")
 print(f"Label distribution: {torch.bincount(random_labels)}")
 
+# Create directory for saving images
+output_dir = './mnist_test_images'
+os.makedirs(output_dir, exist_ok=True)
+
+# Save each image as a PNG file
+print(f"\nSaving images to {output_dir}/")
+for i in range(100):
+    # Convert tensor to PIL Image (scale from [0,1] to [0,255])
+    img_array = (random_images[i] * 255).byte().numpy()
+    img = Image.fromarray(img_array, mode='L')  # 'L' for grayscale
+    
+    # Save with filename: image_001_label_7.png (index_label)
+    filename = f"image_{i:03d}_label_{random_labels[i].item()}.png"
+    filepath = os.path.join(output_dir, filename)
+    img.save(filepath)
+    
+    if i < 5:  # Print first 5 filenames as example
+        print(f"  {filename}")
+
+print(f"✓ Saved all 100 images to {output_dir}/")
+print(f"  Filename format: image_XXX_label_Y.png")
+print(f"  Where XXX is the index (000-099) and Y is the digit (0-9)")
+
 # Display first 25 images in a 5x5 grid
 plt.figure(figsize=(12, 12))
 for i in range(25):
@@ -38,13 +63,9 @@ plt.suptitle('First 25 Random MNIST Test Images', fontsize=16)
 plt.tight_layout()
 plt.show()
 
-# You can access individual images like this:
+# You can also access the tensors:
 # random_images[0] - first random image (28x28 tensor)
 # random_labels[0] - corresponding label
-
-# If you want to save the tensors:
-# torch.save(random_images, 'random_mnist_images.pt')
-# torch.save(random_labels, 'random_mnist_labels.pt')
 
 # Example: Print some statistics
 print(f"\nDataset statistics:")
